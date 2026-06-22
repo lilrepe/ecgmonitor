@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ECG Monitor — ESP32-S3</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 20px;
+    }
+    h1 { font-size: 1.4rem; font-weight: 500; margin-bottom: 16px; color: #38bdf8; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 200px;
+      gap: 16px;
+    }
+    .card {
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 16px;
+    }
+    canvas { width: 100% !important; }
+    .bpm-display {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      gap: 8px;
+    }
+    .bpm-value {
+      font-size: 4rem;
+      font-weight: 700;
+      color: #f43f5e;
+      line-height: 1;
+    }
+    .bpm-label { font-size: 0.8rem; color: #94a3b8; letter-spacing: 2px; }
+    .status-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+      font-size: 0.8rem;
+    }
+    .badge {
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+    .badge-ok  { background: #064e3b; color: #6ee7b7; }
+    .badge-err { background: #7f1d1d; color: #fca5a5; }
+    .badge-off { background: #374151; color: #9ca3af; }
+  </style>
+</head>
+<body>
+  <h1>ECG Monitor — ESP32-S3 + AD8232</h1>
+
+  <div class="status-bar">
+    <span class="badge badge-off" id="ws-status">● Đang kết nối...</span>
+    <span class="badge badge-off" id="lead-status">Leads: --</span>
+    <span id="fps-counter" style="color:#64748b">0 fps</span>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <canvas id="ecg-canvas" height="200"></canvas>
+    </div>
+    <div class="card">
+      <div class="bpm-display">
+        <div class="bpm-value" id="bpm-value">--</div>
+        <div class="bpm-label">BPM</div>
+      </div>
+    </div>
+  </div>
+
+  <!--
+    TODO: Thay thế canvas thủ công bằng Chart.js hoặc lightweight-charts:
+
+    Option 1 — Chart.js (đơn giản, 60KB):
+      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      const chart = new Chart(ctx, { type: 'line', data: {...},
+        options: { animation: false, scales: { x: { display: false } } } });
+
+    Option 2 — Lightweight Charts (TradingView, mượt hơn):
+      <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+
+    Option 3 — Plotly.js (nhiều tính năng, 3MB, quá nặng cho ECG realtime)
+
+    KHUYẾN NGHỊ: Lightweight Charts — thiết kế cho timeseries realtime,
+    không bị lag khi append data liên tục.
+  -->
+
+  <script>
+    /* ────────────────────────────────────────────────────
+     *  Canvas ECG renderer (không dùng thư viện)
+     *  Đủ dùng cho demo, thay bằng lightweight-charts khi production
+     * ──────────────────────────────────────────────────── */
+    const canvas  = document.getElementById('ecg-canvas');
+    const ctx     = canvas.getContext('2d');
+    const MAX_PTS = 1000;  // Hiển thị 2 giây @ 500Hz
+
+    let ecgBuffer = new Float32Array(MAX_PTS).fill(0.5);
+    let writePos  = 0;
+
+    function renderECG() {
+      const W = canvas.clientWidth;
+      const H = canvas.clientHeight;
+      canvas.width  = W;
+      canvas.height = H;
+
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(0, 0, W, H);
+
+      /* Grid nhẹ */
+      ctx.strokeStyle = '#1e3a5f';
+      ctx.lineWidth = 0.5;
+      for (let x = 0; x < W; x += W / 10) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+      }
+      for (let y = 0; y < H; y += H / 4) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+      }
+
+      /* Waveform */
+      ctx.strokeStyle = '#22d3ee';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      for (let i = 0; i < MAX_PTS; i++) {
+        const x = (i / MAX_PTS) * W;
+        const idx = (writePos + i) % MAX_PTS;
+        const y = (1 - ecgBuffer[idx]) * H * 0.8 + H * 0.1;
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      /* Cursor (vị trí đang ghi) */
+      const cursorX = (writePos / MAX_PTS) * W;
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(cursorX, 0);
+      ctx.lineTo(cursorX, H);
+      ctx.stroke();
+    }
+
+    /* ────────────────────────────────────────────────────
+     *  WebSocket
+     * ──────────────────────────────────────────────────── */
+    let ws;
+    let frameCount = 0;
+    let lastFpsTime = Date.now();
+
+    function connectWS() {
+      const wsUrl = `ws://${location.host}/ecg`;
+      ws = new WebSocket(wsUrl);
+
+      ws.onopen = () => {
+        document.getElementById('ws-status').textContent = '● Đã kết nối';
+        document.getElementById('ws-status').className = 'badge badge-ok';
+      };
+
+      ws.onclose = () => {
+        document.getElementById('ws-status').textContent = '● Mất kết nối';
+        document.getElementById('ws-status').className = 'badge badge-err';
+        setTimeout(connectWS, 2000);  // Tự reconnect sau 2s
+      };
+
+      ws.onmessage = (e) => {
+        const d = JSON.parse(e.data);
+
+        /* Append ECG samples vào circular buffer */
+        if (d.ecg && Array.isArray(d.ecg)) {
+          for (const v of d.ecg) {
+            ecgBuffer[writePos % MAX_PTS] = v;
+            writePos = (writePos + 1) % MAX_PTS;
+          }
+        }
+
+        /* BPM */
+        document.getElementById('bpm-value').textContent =
+          d.bpm > 0 ? d.bpm : '--';
+
+        /* Lead-off */
+        const leadEl = document.getElementById('lead-status');
+        if (d.lo) {
+          leadEl.textContent = 'Leads: BỨT';
+          leadEl.className = 'badge badge-err';
+        } else {
+          leadEl.textContent = 'Leads: OK';
+          leadEl.className = 'badge badge-ok';
+        }
+
+        frameCount++;
+      };
+    }
+
+    /* FPS counter */
+    setInterval(() => {
+      const now = Date.now();
+      const fps = Math.round(frameCount / ((now - lastFpsTime) / 1000));
+      document.getElementById('fps-counter').textContent = `${fps} msg/s`;
+      frameCount = 0;
+      lastFpsTime = now;
+    }, 1000);
+
+    /* Render loop @ 60fps */
+    function loop() {
+      renderECG();
+      requestAnimationFrame(loop);
+    }
+
+    connectWS();
+    loop();
+  </script>
+</body>
+</html>

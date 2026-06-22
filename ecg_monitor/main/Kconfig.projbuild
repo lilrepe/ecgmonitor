@@ -1,0 +1,37 @@
+menu "ECG Monitor Configuration"
+
+    config ECG_WIFI_SSID
+        string "WiFi SSID"
+        default "YOUR_SSID"
+        help
+            SSID của mạng WiFi để ESP32-S3 kết nối.
+
+    config ECG_WIFI_PASS
+        string "WiFi Password"
+        default "YOUR_PASSWORD"
+        help
+            Mật khẩu WiFi.
+
+    config ECG_ENABLE_MONITOR
+        bool "Enable system monitor task (debug)"
+        default n
+        help
+            Bật task in thống kê queue/heap mỗi 10 giây.
+            Chỉ dùng khi debug, tắt khi production.
+
+    config ECG_WS_PORT
+        int "WebSocket server port"
+        default 80
+        range 1 65535
+        help
+            Port cho HTTP/WebSocket server.
+
+    config ECG_SAMPLE_RATE
+        int "ADC sample rate (Hz)"
+        default 500
+        range 100 1000
+        help
+            Tần số lấy mẫu. Phải >= 2x tần số cao nhất của ECG (~150Hz).
+            500Hz là khuyến nghị.
+
+endmenu

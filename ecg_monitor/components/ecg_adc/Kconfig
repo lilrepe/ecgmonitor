@@ -1,0 +1,15 @@
+menu "ECG ADC Component"
+
+    config ECG_UNIT_TEST
+        bool "Enable ECG Unit Tests (bật chế độ test)"
+        default n
+        help
+            Khi bật:
+              - test_ecg_adc.c được biên dịch vào firmware
+              - Các handle ADC nội bộ được expose để test
+              - app_main gọi ecg_adc_run_tests() thay vì chạy ECG task
+            Khi tắt (mặc định):
+              - Firmware hoạt động bình thường
+              - Không có overhead của Unity test framework
+
+endmenu
