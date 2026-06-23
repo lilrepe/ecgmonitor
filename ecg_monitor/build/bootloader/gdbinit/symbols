@@ -1,0 +1,9 @@
+
+
+# Load bootloader symbols
+set confirm off
+    # Bootloader elf was not found
+set confirm on
+
+# Load application symbols
+file D:/esp/code/ecg_monitor/ecg_monitor/build/bootloader/bootloader.elf

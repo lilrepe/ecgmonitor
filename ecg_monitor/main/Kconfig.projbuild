@@ -1,5 +1,14 @@
 menu "ECG Monitor Configuration"
 
+    config ECG_SERIAL_DEBUG
+        bool "Serial Debug Mode (ADC only, print to UART)"
+        default n
+        help
+            Khi bật: app chỉ chạy ADC task + serial print task.
+            In dữ liệu thô lên UART để verify phần cứng.
+            Tắt toàn bộ inference / display / network.
+            Dùng để kiểm tra tín hiệu ECG trước khi tích hợp hệ thống đầy đủ.
+
     config ECG_WIFI_SSID
         string "WiFi SSID"
         default "YOUR_SSID"

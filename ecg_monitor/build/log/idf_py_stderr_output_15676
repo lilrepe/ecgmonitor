@@ -1,0 +1,26 @@
+Command: cmake -G Ninja -DPYTHON_DEPS_CHECKED=1 -DPYTHON=D:\esp\env\Espressif\python_env\idf5.5_py3.11_env\Scripts\python.exe -DESP_PLATFORM=1 -DCCACHE_ENABLE=0 D:\esp\code\ecg_monitor\ecg_monitor
+CMake Warning at D:/esp/env/Espressif/frameworks/esp-idf-v5.5.4/tools/cmake/git_submodules.cmake:4 (message):
+  Git executable was not found.  Git submodule checks will not be executed.
+  If you have any build issues at all, start by adding git executable to the
+  PATH and rerun cmake to not see this warning again.
+Call Stack (most recent call first):
+  D:/esp/env/Espressif/frameworks/esp-idf-v5.5.4/tools/cmake/idf.cmake:41 (include)
+  D:/esp/env/Espressif/frameworks/esp-idf-v5.5.4/tools/cmake/project.cmake:29 (include)
+  CMakeLists.txt:2 (include)
+
+
+Traceback (most recent call last):
+  File "D:\esp\env\Espressif\frameworks\esp-idf-v5.5.4\components\esp_rom\gen_gdbinit.py", line 72, in <module>
+    gdbinit_lines = generate_gdbinit_rom_add_symbols(target)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\esp\env\Espressif\frameworks\esp-idf-v5.5.4\components\esp_rom\gen_gdbinit.py", line 32, in generate_gdbinit_rom_add_symbols
+    raise EnvironmentError(
+OSError: ESP_ROM_ELF_DIR environment variable is not defined. Please try to run IDF "install" and "export" scripts.
+CMake Warning at D:/esp/env/Espressif/frameworks/esp-idf-v5.5.4/tools/cmake/gdbinit.cmake:52 (message):
+  Error while generating esp_rom gdbinit
+Call Stack (most recent call first):
+  D:/esp/env/Espressif/frameworks/esp-idf-v5.5.4/tools/cmake/project.cmake:356 (__generate_gdbinit)
+  D:/esp/env/Espressif/frameworks/esp-idf-v5.5.4/tools/cmake/project.cmake:979 (__project_info)
+  CMakeLists.txt:3 (project)
+
+
