@@ -55,27 +55,6 @@ ecg_hr_t         g_current_hr = {0};
  *  cùng đọc clean_queue (chỉ 1 task nhận được mỗi item).
  *  Thay vào đó, Inference Task tự fan-out (copy struct).
  * ════════════════════════════════════════════════════════════ */
-static void inference_fanout_task(void *pvParameters)
-{
-    /*
-     * Wrapper: chạy logic inference, sau đó fan-out.
-     *
-     * Thực tế cần sửa ecg_inference_task để expose clean window
-     * thay vì push thẳng vào queue — hoặc dùng pattern này:
-     * Inference task push vào internal_clean_queue,
-     * fanout task đọc và copy tới 3 destination queue.
-     *
-     * TODO: Refactor ecg_inference.c để return window qua callback
-     *       hoặc expose internal queue để fanout ở đây.
-     *
-     * HIỆN TẠI: ecg_inference_task push trực tiếp vào clean_queue.
-     *           Display task đọc clean_queue.
-     *           HR Detect và Network đọc từ queue riêng của chúng
-     *           (sẽ được cấp dữ liệu bằng cách sửa ecg_inference.c).
-     */
-    vTaskDelete(NULL); // Placeholder — xem TODO ở trên
-}
-
 /* ════════════════════════════════════════════════════════════
  *  Monitor task (optional, debug only)
  *  In thống kê mỗi 10 giây

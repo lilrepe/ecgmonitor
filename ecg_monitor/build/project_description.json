@@ -1,7 +1,7 @@
 {
     "version":            "1.2",
     "project_name":       "ecg_monitor",
-    "project_version":    "1",
+    "project_version":    "32698a7-dirty",
     "project_path":       "D:/esp/code/ecg_monitor/ecg_monitor",
     "idf_path":           "D:/esp/env/Espressif/frameworks/esp-idf-v5.5.4",
     "build_dir":          "D:/esp/code/ecg_monitor/ecg_monitor/build",
@@ -11,7 +11,7 @@
     "app_elf":            "ecg_monitor.elf",
     "app_bin":            "ecg_monitor.bin",
     "build_type":         "flash_app",
-    "git_revision":       "GIT-NOTFOUND",
+    "git_revision":       "v5.5.4",
     "target":             "esp32s3",
     "rev":                "",
     "min_rev":            "0",

@@ -1,0 +1,180 @@
+Command: D:\esp\env\Espressif\python_env\idf5.5_py3.11_env\Scripts\python.exe D:\esp\env\Espressif\frameworks\esp-idf-v5.5.4\tools/idf_monitor.py -p COM5 -b 115200 --toolchain-prefix xtensa-esp32s3-elf- --target esp32s3 --revision 0 D:\esp\code\ecg_monitor\ecg_monitor\build\ecg_monitor.elf D:\esp\code\ecg_monitor\ecg_monitor\build\bootloader\bootloader.elf --force-color -m 'D:\esp\env\Espressif\python_env\idf5.5_py3.11_env\Scripts\python.exe' 'D:\esp\env\Espressif\frameworks\esp-idf-v5.5.4\tools\idf.py' '-p' 'COM5'
+ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0x1 (POWERON),boot:0x8 (SPI_FAST_FLASH_BOOT)
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2820,len:0x14f0
+load:0x403c8700,len:0xd24
+load:0x403cb700,len:0x2ef0
+entry 0x403c8924
+[0;32mI (24) boot: ESP-IDF v5.5.4 2nd stage bootloader[0m
+[0;32mI (25) boot: compile time Jun 29 2026 16:32:36[0m
+[0;32mI (25) boot: Multicore bootloader[0m
+[0;32mI (25) boot: chip revision: v0.2[0m
+[0;32mI (28) boot: efuse block revision: v1.4[0m
+[0;32mI (31) boot.esp32s3: Boot SPI Speed : 80MHz[0m
+[0;32mI (35) boot.esp32s3: SPI Mode       : DIO[0m
+[0;32mI (39) boot.esp32s3: SPI Flash Size : 2MB[0m
+[0;32mI (43) boot: Enabling RNG early entropy source...[0m
+[0;32mI (47) boot: Partition Table:[0m
+[0;32mI (50) boot: ## Label            Usage          Type ST Offset   Length[0m
+[0;32mI (56) boot:  0 nvs              WiFi data        01 02 00009000 00006000[0m
+[0;32mI (63) boot:  1 phy_init         RF data          01 01 0000f000 00001000[0m
+[0;32mI (69) boot:  2 factory          factory app      00 00 00010000 00100000[0m
+[0;32mI (76) boot: End of partition table[0m
+[0;32mI (79) esp_image: segment 0: paddr=00010020 vaddr=3c0a0020 size=1f4d8h (128216) map[0m
+[0;32mI (109) esp_image: segment 1: paddr=0002f500 vaddr=3fc9b800 size=00b18h (  2840) load[0m
+[0;32mI (110) esp_image: segment 2: paddr=00030020 vaddr=42000020 size=91bfch (596988) map[0m
+[0;32mI (218) esp_image: segment 3: paddr=000c1c24 vaddr=3fc9c318 size=04394h ( 17300) load[0m
+[0;32mI (222) esp_image: segment 4: paddr=000c5fc0 vaddr=40374000 size=177d8h ( 96216) load[0m
+[0;32mI (243) esp_image: segment 5: paddr=000dd7a0 vaddr=50000000 size=00020h (    32) load[0m
+[0;32mI (252) boot: Loaded app from partition at offset 0x10000[0m
+[0;32mI (253) boot: Disabling RNG early entropy source...[0m
+[0;32mI (263) cpu_start: Multicore app[0m
+[0;32mI (271) cpu_start: GPIO 44 and 43 are used as console UART I/O pins[0m
+[0;32mI (272) cpu_start: Pro cpu start user code[0m
+[0;32mI (272) cpu_start: cpu freq: 160000000 Hz[0m
+[0;32mI (273) app_init: Application information:[0m
+[0;32mI (277) app_init: Project name:     ecg_monitor[0m
+[0;32mI (281) app_init: App version:      32698a7-dirty[0m
+[0;32mI (286) app_init: Compile time:     Jun 29 2026 16:32:18[0m
+[0;32mI (291) app_init: ELF file SHA256:  97fb70dc6...[0m
+[0;32mI (295) app_init: ESP-IDF:          v5.5.4[0m
+[0;32mI (299) efuse_init: Min chip rev:     v0.0[0m
+[0;32mI (303) efuse_init: Max chip rev:     v0.99 [0m
+[0;32mI (307) efuse_init: Chip rev:         v0.2[0m
+[0;32mI (311) heap_init: Initializing. RAM available for dynamic allocation:[0m
+[0;32mI (317) heap_init: At 3FCA8060 len 000416B0 (261 KiB): RAM[0m
+[0;32mI (322) heap_init: At 3FCE9710 len 00005724 (21 KiB): RAM[0m
+[0;32mI (327) heap_init: At 3FCF0000 len 00008000 (32 KiB): DRAM[0m
+[0;32mI (333) heap_init: At 600FE000 len 00001FE8 (7 KiB): RTCRAM[0m
+[0;32mI (339) spi_flash: detected chip: boya[0m
+[0;32mI (341) spi_flash: flash io: dio[0m
+[0;33mW (344) spi_flash: Detected size(16384k) larger than the size in the binary image header(2048k). Using the size in the binary image header.[0m
+[0;33mW (357) i2c: This driver is an old driver, please migrate your application code to adapt `driver/i2c_master.h`[0m
+[0;32mI (367) sleep_gpio: Configure to isolate all GPIO pins in sleep state[0m
+[0;32mI (373) sleep_gpio: Enable automatic switching of GPIO sleep configuration[0m
+[0;32mI (380) main_task: Started on CPU0[0m
+[0;32mI (389) main_task: Calling app_main()[0m
+[0;32mI (389) ECG_MAIN: === ECG Monitor v0.1 (ESP32-S3 + AD8232) ===[0m
+[0;32mI (392) ECG_MAIN: Built: Jun 29 2026 16:32:28[0m
+[0;32mI (396) ECG_MAIN: Sample rate: 500 Hz | Window: 128 | Overlap: 64[0m
+[0;32mI (421) ECG_MAIN: FreeRTOS queues and mutex created[0m
+[0;32mI (422) ECG_ADC: GPIO initialized. AD8232 powered ON.[0m
+[0;32mI (422) ECG_ADC: ADC calibration: OK[0m
+[0;32mI (423) ECG_MAIN: ADC initialized[0m
+[0;32mI (426) ECG_DENOISE: Denoise backend: classic-dsp[0m
+[0;32mI (430) ECG_DENOISE: Classic filters: HP 0.5 Hz, notch 50.0 Hz, LP 40.0 Hz[0m
+[0;32mI (437) ECG_HR: HR detector initialized[0m
+[0;32mI (440) ECG_MAIN: HR detector initialized[0m
+[0;32mI (548) ECG_DISP: OLED SSD1306 initialized (128x64)[0m
+[0;32mI (548) ECG_MAIN: Display initialized[0m
+[0;32mI (550) pp: pp rom version: e7ae62f[0m
+[0;32mI (550) net80211: net80211 rom version: e7ae62f[0m
+[0;32mI (554) wifi:wifi driver task: 3fcb1fd8, prio:23, stack:6656, core=0[0m
+[0;32mI (568) wifi:wifi firmware version: 0947e8b[0m
+[0;32mI (568) wifi:wifi certification version: v7.0[0m
+[0;32mI (568) wifi:config NVS flash: enabled[0m
+[0;32mI (570) wifi:config nano formatting: disabled[0m
+[0;32mI (574) wifi:Init data frame dynamic rx buffer num: 32[0m
+[0;32mI (579) wifi:Init static rx mgmt buffer num: 5[0m
+[0;32mI (583) wifi:Init management short buffer num: 32[0m
+[0;32mI (587) wifi:Init dynamic tx buffer num: 32[0m
+[0;32mI (591) wifi:Init static tx FG buffer num: 2[0m
+[0;32mI (595) wifi:Init static rx buffer size: 1600[0m
+[0;32mI (599) wifi:Init static rx buffer num: 10[0m
+[0;32mI (603) wifi:Init dynamic rx buffer num: 32[0m
+[0;32mI (608) wifi_init: rx ba win: 6[0m
+[0;32mI (610) wifi_init: accept mbox: 6[0m
+[0;32mI (613) wifi_init: tcpip mbox: 32[0m
+[0;32mI (616) wifi_init: udp mbox: 6[0m
+[0;32mI (619) wifi_init: tcp mbox: 6[0m
+[0;32mI (621) wifi_init: tcp tx win: 5760[0m
+[0;32mI (625) wifi_init: tcp rx win: 5760[0m
+[0;32mI (628) wifi_init: tcp mss: 1440[0m
+[0;32mI (631) wifi_init: WiFi IRAM OP enabled[0m
+[0;32mI (634) wifi_init: WiFi RX IRAM OP enabled[0m
+[0;33mW (639) wifi:Password length matches WPA2 standards, authmode threshold changes from OPEN to WPA2[0m
+[0;32mI (647) phy_init: phy_version 711,97bcf0a2,Aug 25 2025,19:04:10[0m
+[0;32mI (689) wifi:mode : sta (14:c1:9f:3a:b7:d8)[0m
+[0;32mI (690) wifi:enable tsf[0m
+[0;32mI (691) ECG_NET: Connecting to WiFi 'BKIC_LAB'...[0m
+[0;33mW (3104) ECG_NET: WiFi retry 1/5[0m
+[0;33mW (5515) ECG_NET: WiFi retry 2/5[0m
+[0;33mW (7926) ECG_NET: WiFi retry 3/5[0m
+[0;33mW (10336) ECG_NET: WiFi retry 4/5[0m
+[0;33mW (12747) ECG_NET: WiFi retry 5/5[0m
+[1;31mE (15157) ECG_NET: WiFi connection failed[0m
+[0;33mW (15157) ECG_MAIN: Network init failed — running offline mode[0m
+[0;32mI (15157) ECG_ADC: ADC task started @ 500 Hz (period 2000 us)[0m
+[0;32mI (15161) ECG_MAIN: ADC task spawned [Core 0, P5][0m
+[0;32mI (15165) ECG_DENOISE: ECG denoise task started (window=128, step=64, backend=classic-dsp)[0m
+[0;32mI (15173) ECG_MAIN: Inference task spawned [Core 0, P4][0m
+[0;32mI (15178) ECG_HR: HR detect task started[0m
+[0;32mI (15182) ECG_MAIN: HR detect task spawned [Core 0, P3][0m
+[0;32mI (15187) ECG_MAIN: Display task spawned [Core 1, P3][0m
+[0;32mI (15187) ECG_DISP: Display task started @ 25 fps[0m
+[0;32mI (15192) ECG_MAIN: All tasks spawned — app_main returning (scheduler takes over)[0m
+[0;32mI (15203) main_task: Returned from app_main()[0m
+[0;33mW (16440) ECG_DENOISE: network_queue full, drop network window #9[0m
+[0;33mW (16568) ECG_DENOISE: network_queue full, drop network window #10[0m
+[0;33mW (16696) ECG_DENOISE: network_queue full, drop network window #11[0m
+[0;33mW (16824) ECG_DENOISE: network_queue full, drop network window #12[0m
+[0;33mW (16952) ECG_DENOISE: network_queue full, drop network window #13[0m
+[0;33mW (17080) ECG_DENOISE: network_queue full, drop network window #14[0m
+[0;33mW (17208) ECG_DENOISE: network_queue full, drop network window #15[0m
+[0;33mW (17336) ECG_DENOISE: network_queue full, drop network window #16[0m
+[0;33mW (17464) ECG_DENOISE: network_queue full, drop network window #17[0m
+[0;33mW (17592) ECG_DENOISE: network_queue full, drop network window #18[0m
+[0;33mW (17720) ECG_DENOISE: network_queue full, drop network window #19[0m
+[0;33mW (17848) ECG_DENOISE: network_queue full, drop network window #20[0m
+[0;33mW (17976) ECG_DENOISE: network_queue full, drop network window #21[0m
+[0;33mW (18104) ECG_DENOISE: network_queue full, drop network window #22[0m
+[0;33mW (18232) ECG_DENOISE: network_queue full, drop network window #23[0m
+[0;33mW (18360) ECG_DENOISE: network_queue full, drop network window #24[0m
+[0;33mW (18488) ECG_DENOISE: network_queue full, drop network window #25[0m
+[0;33mW (18616) ECG_DENOISE: network_queue full, drop network window #26[0m
+[0;33mW (18744) ECG_DENOISE: network_queue full, drop network window #27[0m
+[0;33mW (18872) ECG_DENOISE: network_queue full, drop network window #28[0m
+[0;33mW (19000) ECG_DENOISE: network_queue full, drop network window #29[0m
+[0;33mW (19128) ECG_DENOISE: network_queue full, drop network window #30[0m
+[0;33mW (19256) ECG_DENOISE: network_queue full, drop network window #31[0m
+[0;33mW (19384) ECG_DENOISE: network_queue full, drop network window #32[0m
+[0;33mW (19512) ECG_DENOISE: network_queue full, drop network window #33[0m
+[0;33mW (19640) ECG_DENOISE: network_queue full, drop network window #34[0m
+[0;33mW (19768) ECG_DENOISE: network_queue full, drop network window #35[0m
+[0;33mW (19896) ECG_DENOISE: network_queue full, drop network window #36[0m
+[0;33mW (20024) ECG_DENOISE: network_queue full, drop network window #37[0m
+[0;33mW (20152) ECG_DENOISE: network_queue full, drop network window #38[0m
+[0;33mW (20280) ECG_DENOISE: network_queue full, drop network window #39[0m
+[0;33mW (20408) ECG_DENOISE: network_queue full, drop network window #40[0m
+[0;33mW (20536) ECG_DENOISE: network_queue full, drop network window #41[0m
+[0;33mW (20664) ECG_DENOISE: network_queue full, drop network window #42[0m
+[0;33mW (20792) ECG_DENOISE: network_queue full, drop network window #43[0m
+[0;33mW (20920) ECG_DENOISE: network_queue full, drop network window #44[0m
+[0;33mW (21048) ECG_DENOISE: network_queue full, drop network window #45[0m
+[0;33mW (21176) ECG_DENOISE: network_queue full, drop network window #46[0m
+[0;33mW (21304) ECG_DENOISE: network_queue full, drop network window #47[0m
+[0;33mW (21432) ECG_DENOISE: network_queue full, drop network window #48[0m
+[0;33mW (21560) ECG_DENOISE: network_queue full, drop network window #49[0m
+[0;33mW (21688) ECG_DENOISE: network_queue full, drop network window #50[0m
+[0;33mW (21816) ECG_DENOISE: network_queue full, drop network window #51[0m
+[0;33mW (21944) ECG_DENOISE: network_queue full, drop network window #52[0m
+[0;33mW (22072) ECG_DENOISE: network_queue full, drop network window #53[0m
+[0;33mW (22200) ECG_DENOISE: network_queue full, drop network window #54[0m
+[0;33mW (22328) ECG_DENOISE: network_queue full, drop network window #55[0m
+[0;33mW (22456) ECG_DENOISE: network_queue full, drop network window #56[0m
+[0;33mW (22584) ECG_DENOISE: network_queue full, drop network window #57[0m
+[0;33mW (22712) ECG_DENOISE: network_queue full, drop network window #58[0m
+[0;33mW (22840) ECG_DENOISE: network_queue full, drop network window #59[0m
+[0;33mW (22968) ECG_DENOISE: network_queue full, drop network window #60[0m
+[0;33mW (23096) ECG_DENOISE: network_queue full, drop network window #61[0m
+[0;33mW (23224) ECG_DENOISE: network_queue full, drop network window #62[0m
+[0;33mW (23352) ECG_DENOISE: network_queue full, drop network window #63[0m
+[0;33mW (23480) ECG_DENOISE: network_queue full, drop network window #64[0m
+[0;33mW (23608) ECG_DENOISE: network_queue full, drop network window #65[0m
+[0;33mW (23736) ECG_DENOISE: network_queue full, drop network window #66[0m
+[0;33mW (23864) ECG_DENOISE: network_queue full, drop network window #67[0m
+[0;33mW (23992) ECG_DENOISE: network_queue full, drop network window #68[0m
+[0;33mW (24120) ECG_DENOISE: network_queue full, drop network window #69[0m

@@ -167,11 +167,32 @@ static void broadcast_ecg(const float *samples, int n, uint8_t bpm, bool lead_of
         .len     = (size_t)pos,
     };
 
-    /* Broadcast tới tất cả client */
-    /* TODO: Dùng httpd_ws_send_frame_async với task handle để không block */
-    /* esp_http_server không có API broadcast sẵn — cần lưu fd list */
-    /* Tham khảo: esp-idf/examples/protocols/http_server/ws_echo_server */
-    ESP_LOGD(TAG, "TX %d bytes to %d clients", pos, g_ws_client_count);
+    int client_fds[ECG_WS_MAX_CLIENTS + 2];
+    size_t fds = ECG_WS_MAX_CLIENTS + 2;
+    int sent = 0;
+
+    if (httpd_get_client_list(s_server, &fds, client_fds) != ESP_OK) {
+        ESP_LOGW(TAG, "Failed to get WS client list");
+        g_ws_client_count = 0;
+        return;
+    }
+
+    for (size_t i = 0; i < fds; i++) {
+        if (httpd_ws_get_fd_info(s_server, client_fds[i]) != HTTPD_WS_CLIENT_WEBSOCKET) {
+            continue;
+        }
+
+        esp_err_t ret = httpd_ws_send_frame_async(s_server, client_fds[i], &ws_pkt);
+        if (ret == ESP_OK) {
+            sent++;
+        } else {
+            ESP_LOGW(TAG, "WS send failed fd=%d: %s",
+                     client_fds[i], esp_err_to_name(ret));
+        }
+    }
+
+    g_ws_client_count = sent;
+    ESP_LOGD(TAG, "TX %d bytes to %d WS clients", pos, sent);
 }
 
 /* ════════════════════════════════════════════════════════════
@@ -230,11 +251,17 @@ esp_err_t ecg_network_init(void)
     ESP_LOGI(TAG, "WebSocket server started at ws://[IP]:%d%s",
              ECG_WS_PORT, ECG_WS_URI);
 
-    /* 5. Tạo network_queue */
-    network_queue = xQueueCreate(8, sizeof(ecg_clean_window_t));
-    configASSERT(network_queue);
-
     return ESP_OK;
+}
+
+static uint8_t get_current_bpm(void)
+{
+    uint8_t bpm = 0;
+    if (xSemaphoreTake(hr_mutex, 0) == pdTRUE) {
+        bpm = g_current_hr.valid ? g_current_hr.bpm : 0;
+        xSemaphoreGive(hr_mutex);
+    }
+    return bpm;
 }
 
 /* ════════════════════════════════════════════════════════════
@@ -267,8 +294,12 @@ void ecg_network_task(void *pvParameters)
                 if (s_ring_count < NET_RING_SIZE) s_ring_count++;
 
                 /* Batch cho lần gửi tiếp theo */
-                if (batch_fill < NETWORK_BATCH_SIZE) {
-                    batch[batch_fill++] = win.cleaned[i];
+                batch[batch_fill++] = win.cleaned[i];
+                if (batch_fill >= NETWORK_BATCH_SIZE) {
+                    broadcast_ecg(batch, batch_fill, get_current_bpm(), batch_lead_off);
+                    batch_fill = 0;
+                    batch_lead_off = false;
+                    last_send = xTaskGetTickCount();
                 }
             }
         }
@@ -278,14 +309,7 @@ void ecg_network_task(void *pvParameters)
         if ((now - last_send) >= pdMS_TO_TICKS(NETWORK_SEND_PERIOD_MS)
             && batch_fill > 0)
         {
-            /* Lấy HR snapshot */
-            uint8_t bpm = 0;
-            if (xSemaphoreTake(hr_mutex, 0) == pdTRUE) {
-                bpm = g_current_hr.valid ? g_current_hr.bpm : 0;
-                xSemaphoreGive(hr_mutex);
-            }
-
-            broadcast_ecg(batch, batch_fill, bpm, batch_lead_off);
+            broadcast_ecg(batch, batch_fill, get_current_bpm(), batch_lead_off);
 
             batch_fill      = 0;
             batch_lead_off  = false;

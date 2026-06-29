@@ -106,12 +106,12 @@ static void ssd1306_flush(void)
     ssd1306_write_cmd(0x21); ssd1306_write_cmd(0); ssd1306_write_cmd(127); // Col
     ssd1306_write_cmd(0x22); ssd1306_write_cmd(0); ssd1306_write_cmd(7);   // Page
 
-    /* Gửi framebuffer với control byte 0x40 (data stream) */
-    uint8_t header = 0x40;
-    i2c_master_write_to_device(OLED_I2C_PORT, OLED_I2C_ADDR, &header, 1,
+    /* Gửi framebuffer với control byte 0x40 (data stream). */
+    static uint8_t tx_buf[1 + sizeof(s_fb)];
+    tx_buf[0] = 0x40;
+    memcpy(&tx_buf[1], s_fb, sizeof(s_fb));
+    i2c_master_write_to_device(OLED_I2C_PORT, OLED_I2C_ADDR, tx_buf, sizeof(tx_buf),
                                pdMS_TO_TICKS(50));
-    /* NOTE: API này gửi header rồi phải gửi tiếp data — dùng transaction thực tế */
-    /* TODO: dùng i2c_master_transmit với buffer ghép hoặc esp_lcd */
 }
 
 /* ════════════════════════════════════════════════════════════
@@ -173,7 +173,7 @@ void ecg_display_task(void *pvParameters)
             int step = win.n_samples / WAVE_WIDTH;
             if (step < 1) step = 1;
 
-            for (int i = 0; i < win.n_samples && s_wave_write < WAVE_WIDTH; i += step) {
+            for (int i = 0; i < win.n_samples; i += step) {
                 /* Map float (0.0–1.0) → Y pixel (inverted vì OLED Y tăng xuống) */
                 float norm = win.cleaned[i];
                 if (norm < 0.0f) norm = 0.0f;

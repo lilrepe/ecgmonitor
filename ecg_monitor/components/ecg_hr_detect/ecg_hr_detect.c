@@ -35,6 +35,10 @@ typedef struct {
 
     bool     in_refractory;        // True: đang trong giai đoạn refractory
     int      refractory_count;
+
+    bool     has_prev_sample;
+    float    prev_sample;
+    bool     has_processed_window;
 } pt_state_t;
 
 static pt_state_t s_pt = {0};
@@ -79,9 +83,10 @@ static float pt_process_sample(float sample, float prev_sample)
 static bool pt_process_window(const ecg_clean_window_t *win, uint8_t *out_bpm)
 {
     bool found_peak = false;
-    float prev = (s_pt.mwi_buf[s_pt.mwi_idx] > 0) ? s_pt.mwi_buf[s_pt.mwi_idx] : 0;
+    int start = s_pt.has_processed_window ? ECG_WINDOW_OVERLAP : 0;
+    float prev = s_pt.has_prev_sample ? s_pt.prev_sample : win->cleaned[start];
 
-    for (int i = 0; i < win->n_samples; i++) {
+    for (int i = start; i < win->n_samples; i++) {
         float mwi_out = pt_process_sample(win->cleaned[i], prev);
         prev = win->cleaned[i];
 
@@ -127,6 +132,9 @@ static bool pt_process_window(const ecg_clean_window_t *win, uint8_t *out_bpm)
             s_pt.refractory_count = 75;
         }
     }
+    s_pt.prev_sample = prev;
+    s_pt.has_prev_sample = true;
+    s_pt.has_processed_window = true;
     return found_peak;
 }
 

@@ -6844,6 +6844,36 @@
                 "type": "bool"
             },
             {
+                "children": [
+                    {
+                        "children": [],
+                        "depends_on": "<choice ECG_DENOISE_BACKEND>",
+                        "help": "Dung bo loc so IIR de chay duoc ngay, khong can model AI.",
+                        "id": "ECG_DENOISE_CLASSIC",
+                        "name": "ECG_DENOISE_CLASSIC",
+                        "range": null,
+                        "title": "Classic DSP filters (high-pass + notch + low-pass)",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "<choice ECG_DENOISE_BACKEND>",
+                        "help": "Khung de tich hop model sau nay. Hien tai compile duoc,\nnhung chi pass-through va ghi log can gan model.",
+                        "id": "ECG_DENOISE_AI",
+                        "name": "ECG_DENOISE_AI",
+                        "range": null,
+                        "title": "AI denoise placeholder",
+                        "type": "bool"
+                    }
+                ],
+                "depends_on": null,
+                "help": "Chon cach loc nhieu cho tin hieu ECG sau ADC.\nClassic filter dang chay that: high-pass, notch, low-pass.\nAI denoise hien la khung placeholder de sau nay gan model.",
+                "id": "ecg-monitor-configuration-ecg-denoise-backend",
+                "name": "ECG_DENOISE_BACKEND",
+                "title": "ECG denoise backend",
+                "type": "choice"
+            },
+            {
                 "children": [],
                 "depends_on": null,
                 "help": "Port cho HTTP/WebSocket server.",
