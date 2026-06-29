@@ -34,6 +34,7 @@
 #include "ecg_hr_detect.h"
 #include "ecg_display.h"
 #include "ecg_network.h"
+#include "ecg_serial_debug.h"
 
 static const char *TAG = "ECG_MAIN";
 
@@ -54,27 +55,6 @@ ecg_hr_t         g_current_hr = {0};
  *  cùng đọc clean_queue (chỉ 1 task nhận được mỗi item).
  *  Thay vào đó, Inference Task tự fan-out (copy struct).
  * ════════════════════════════════════════════════════════════ */
-static void inference_fanout_task(void *pvParameters)
-{
-    /*
-     * Wrapper: chạy logic inference, sau đó fan-out.
-     *
-     * Thực tế cần sửa ecg_inference_task để expose clean window
-     * thay vì push thẳng vào queue — hoặc dùng pattern này:
-     * Inference task push vào internal_clean_queue,
-     * fanout task đọc và copy tới 3 destination queue.
-     *
-     * TODO: Refactor ecg_inference.c để return window qua callback
-     *       hoặc expose internal queue để fanout ở đây.
-     *
-     * HIỆN TẠI: ecg_inference_task push trực tiếp vào clean_queue.
-     *           Display task đọc clean_queue.
-     *           HR Detect và Network đọc từ queue riêng của chúng
-     *           (sẽ được cấp dữ liệu bằng cách sửa ecg_inference.c).
-     */
-    vTaskDelete(NULL); // Placeholder — xem TODO ở trên
-}
-
 /* ════════════════════════════════════════════════════════════
  *  Monitor task (optional, debug only)
  *  In thống kê mỗi 10 giây
@@ -112,27 +92,60 @@ void app_main(void)
 {
     ESP_LOGI(TAG, "=== ECG Monitor v0.1 (ESP32-S3 + AD8232) ===");
     ESP_LOGI(TAG, "Built: %s %s", __DATE__, __TIME__);
+
+/* ════════════════════════════════════════════════════════════
+ *  CHẾ ĐỘ SERIAL DEBUG (Yêu cầu 1)
+ *
+ *  Khi CONFIG_ECG_SERIAL_DEBUG=y:
+ *    - Chỉ khởi tạo ADC + raw_queue
+ *    - Spawn ADC task + serial print task
+ *    - KHÔNG khởi tạo inference / display / network
+ *
+ *  Bật bằng:
+ *    idf.py menuconfig → ECG Monitor Configuration → Serial Debug Mode
+ *  hoặc:
+ *    Thêm CONFIG_ECG_SERIAL_DEBUG=y vào sdkconfig.defaults
+ * ════════════════════════════════════════════════════════════ */
+#ifdef CONFIG_ECG_SERIAL_DEBUG
+
+    ESP_LOGI(TAG, "*** SERIAL DEBUG MODE — inference/display/network DISABLED ***");
+
+    /* ── 1. Chỉ tạo raw_queue ───────────────────────── */
+    raw_queue = xQueueCreate(2 * ECG_WINDOW_SIZE, sizeof(ecg_raw_sample_t));
+    configASSERT(raw_queue != NULL);
+    ESP_LOGI(TAG, "raw_queue created (capacity=%d)", 2 * ECG_WINDOW_SIZE);
+
+    /* ── 2. Khởi tạo ADC ────────────────────────────── */
+    ecg_adc_init();
+    ESP_LOGI(TAG, "ADC initialized (GPIO1=ADC, GPIO2=LO+, GPIO3=LO-, GPIO4=SDN)");
+
+    /* ── 3. Spawn tasks ─────────────────────────────── */
+    BaseType_t ret;
+
+    /* ADC Task — Core 0, Priority 5 */
+    ret = xTaskCreatePinnedToCore(
+        ecg_adc_task, "ecg_adc",
+        TASK_STACK_ADC, NULL, TASK_PRIO_ADC,
+        NULL, TASK_CORE_ADC);
+    configASSERT(ret == pdPASS);
+    ESP_LOGI(TAG, "ADC task spawned [Core %d, P%d]", TASK_CORE_ADC, TASK_PRIO_ADC);
+
+    /* Serial Debug Task — Core 1, Priority 2 */
+    ret = xTaskCreatePinnedToCore(
+        ecg_serial_debug_task, "ecg_dbg",
+        4096, NULL, 2,
+        NULL, 1);
+    configASSERT(ret == pdPASS);
+    ESP_LOGI(TAG, "Serial debug task spawned [Core 1, P2]");
+
+    ESP_LOGI(TAG, "Serial debug ready — open terminal @ 115200 baud");
+    /* app_main thoát — scheduler tiếp quản */
+
+#else /* CONFIG_ECG_SERIAL_DEBUG not set — full system mode */
+
     ESP_LOGI(TAG, "Sample rate: %d Hz | Window: %d | Overlap: %d",
              ECG_SAMPLE_RATE_HZ, ECG_WINDOW_SIZE, ECG_WINDOW_OVERLAP);
 
-#ifdef CONFIG_ECG_UNIT_TEST
-    /* ─── CHẾU ĐỘ UNIT TEST (iệp cụ khi màn hình thông báo) ────── */
-    ESP_LOGW(TAG, ">>> UNIT TEST MODE: chạy test_ecg_adc...");
-    ESP_LOGW(TAG, ">>> Màn hình Serial Monitor: 115200 baud");
-
-    /* Chỉ tạo raw_queue — test runner cần nó */
-    raw_queue = xQueueCreate(2 * ECG_WINDOW_SIZE, sizeof(ecg_raw_sample_t));
-    configASSERT(raw_queue != NULL);
-
-    /* Delay nhỏ để Serial CDC kịt nối xong */
-    vTaskDelay(pdMS_TO_TICKS(500));
-
-    ecg_adc_run_tests();   /* Định nghĩa trong test_ecg_adc.c */
-
-    ESP_LOGW(TAG, ">>> UNIT TEST MODE: hoàn thành.");
-    /* Dừng tại đây — không chạy task ECG bình thường */
-    while (1) { vTaskDelay(pdMS_TO_TICKS(1000)); }
-#else
     /* ── 0. NVS flash (cần cho WiFi) ─────────────────── */
     esp_err_t nvs_ret = nvs_flash_init();
     if (nvs_ret == ESP_ERR_NVS_NO_FREE_PAGES ||
@@ -264,5 +277,6 @@ void app_main(void)
 
     ESP_LOGI(TAG, "All tasks spawned — app_main returning (scheduler takes over)");
     /* app_main thoát — FreeRTOS scheduler điều phối các task */
-#endif /* CONFIG_ECG_UNIT_TEST */
+
+#endif /* CONFIG_ECG_SERIAL_DEBUG */
 }

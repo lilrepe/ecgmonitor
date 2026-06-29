@@ -1,5 +1,14 @@
 menu "ECG Monitor Configuration"
 
+    config ECG_SERIAL_DEBUG
+        bool "Serial Debug Mode (ADC only, print to UART)"
+        default n
+        help
+            Khi bật: app chỉ chạy ADC task + serial print task.
+            In dữ liệu thô lên UART để verify phần cứng.
+            Tắt toàn bộ inference / display / network.
+            Dùng để kiểm tra tín hiệu ECG trước khi tích hợp hệ thống đầy đủ.
+
     config ECG_WIFI_SSID
         string "WiFi SSID"
         default "YOUR_SSID"
@@ -18,6 +27,26 @@ menu "ECG Monitor Configuration"
         help
             Bật task in thống kê queue/heap mỗi 10 giây.
             Chỉ dùng khi debug, tắt khi production.
+
+    choice ECG_DENOISE_BACKEND
+        prompt "ECG denoise backend"
+        default ECG_DENOISE_CLASSIC
+        help
+            Chon cach loc nhieu cho tin hieu ECG sau ADC.
+            Classic filter dang chay that: high-pass, notch, low-pass.
+            AI denoise hien la khung placeholder de sau nay gan model.
+
+        config ECG_DENOISE_CLASSIC
+            bool "Classic DSP filters (high-pass + notch + low-pass)"
+            help
+                Dung bo loc so IIR de chay duoc ngay, khong can model AI.
+
+        config ECG_DENOISE_AI
+            bool "AI denoise placeholder"
+            help
+                Khung de tich hop model sau nay. Hien tai compile duoc,
+                nhung chi pass-through va ghi log can gan model.
+    endchoice
 
     config ECG_WS_PORT
         int "WebSocket server port"

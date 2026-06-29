@@ -86,6 +86,8 @@ typedef struct {
 extern QueueHandle_t raw_queue;    // ecg_raw_sample_t,   capacity = 2×WINDOW_SIZE
 extern QueueHandle_t clean_queue;  // ecg_clean_window_t, capacity = 4
 extern QueueHandle_t hr_queue;     // ecg_hr_t,           capacity = 4
+extern QueueHandle_t hr_input_queue;  // ecg_clean_window_t, capacity = 4
+extern QueueHandle_t network_queue;   // ecg_clean_window_t, capacity = 8
 
 /* Mutex bảo vệ shared HR value (Display đọc, HR task ghi) */
 extern SemaphoreHandle_t hr_mutex;

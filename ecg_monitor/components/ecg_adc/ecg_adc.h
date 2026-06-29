@@ -18,6 +18,11 @@ extern "C" {
 void ecg_adc_init(void);
 
 /**
+ * @brief Giải phóng ADC1 + calibration. Có thể gọi nhiều lần an toàn.
+ */
+void ecg_adc_deinit(void);
+
+/**
  * @brief FreeRTOS task: đọc ADC @ 500 Hz bằng esp_timer, đẩy vào raw_queue.
  *        Pin to Core 0, Priority 5.
  *
@@ -36,23 +41,10 @@ void ecg_adc_task(void *pvParameters);
  */
 extern uint32_t g_adc_overflow_count;
 
-/* ═══════════════════════════════════════════════════════════
- *  Chế độ Unit Test (chỉ có khi CONFIG_ECG_UNIT_TEST=y)
- *
- *  Các biến này được expose từ ecg_adc.c để test có thể kiểm tra
- *  nội bộ ADC mà không phải sửa kiến trúc production.
- * ═══════════════════════════════════════════════════════════ */
-#ifdef CONFIG_ECG_UNIT_TEST
+/* Expose variables for unit testing linking */
 extern adc_oneshot_unit_handle_t g_test_adc1_handle;
 extern adc_cali_handle_t         g_test_adc1_cali_handle;
 extern bool                      g_test_adc_calibrated;
-
-/**
- * @brief Chạy toàn bộ Unity test suite cho ecg_adc.
- *        Gọi từ app_main khi CONFIG_ECG_UNIT_TEST=y.
- */
-void ecg_adc_run_tests(void);
-#endif
 
 #ifdef __cplusplus
 }

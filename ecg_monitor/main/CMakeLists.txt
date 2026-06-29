@@ -1,5 +1,5 @@
 idf_component_register(
-    SRCS "main.c"
+    SRCS "main.c" "ecg_serial_debug.c"
     INCLUDE_DIRS "."
     REQUIRES
         ecg_common

@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "d:/D_main_folder/ecg_monitor/ecg_monitor/components/ecg_display",
-      "program": "d:/D_main_folder/ecg_monitor/ecg_monitor/components/ecg_display/build/Debug/outDebug",
+      "cwd": "d:/esp/code/ecg_monitor/ecg_monitor/components/ecg_adc",
+      "program": "d:/esp/code/ecg_monitor/ecg_monitor/components/ecg_adc/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

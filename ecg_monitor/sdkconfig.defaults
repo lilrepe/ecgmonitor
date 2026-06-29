@@ -18,8 +18,16 @@ CONFIG_ESP_WIFI_STATIC_RX_BUFFER_NUM=10
 CONFIG_ESP_WIFI_DYNAMIC_TX_BUFFER_NUM=32
 
 # WebSocket / HTTP server
-CONFIG_HTTPD_MAX_OPEN_SOCKETS=7
 CONFIG_HTTPD_WS_SUPPORT=y
 
 # Tăng stack cho main task (dùng khi init)
 CONFIG_ESP_MAIN_TASK_STACK_SIZE=8192
+CONFIG_ECG_UNIT_TEST=y
+
+# Serial Debug Mode (Yêu cầu 1) — chỉ ADC + UART print, bỏ qua inference/display/network
+# Tắt dòng này khi chuyển sang Yêu cầu 2 (OLED)
+# CONFIG_ECG_SERIAL_DEBUG is not set
+
+# Default denoise backend: classic DSP filters. AI path is placeholder only.
+CONFIG_ECG_DENOISE_CLASSIC=y
+# CONFIG_ECG_DENOISE_AI is not set
